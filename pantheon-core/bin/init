@@ -1,0 +1,153 @@
+term.clear()
+term.setCursorPos(1, 1)
+bios = {
+  PA_BREAK = PA_BREAK,
+  PA_PRINT = PA_PRINT,
+  expect = expect,
+  load = load,
+  loadfile = loadfile,
+  dofile = dofile,
+  bit32 = bit32,
+  sleep = sleep
+}
+fs.isFile = function(f)
+  return not fs.isDir(f)
+end
+typeof = function(v)
+  local meta
+  if "table" == type(v) then
+    do
+      local type_mt = getmetatable(v)
+      if type_mt then
+        meta = type_mt.__type
+      end
+    end
+  end
+  if meta then
+    local _exp_0 = type(meta)
+    if "function" == _exp_0 then
+      return meta(v)
+    elseif "string" == _exp_0 then
+      return meta
+    end
+  elseif io.type(v) then
+    return "io"
+  else
+    return type(v)
+  end
+end
+typeset = function(v, ty)
+  bios.expect(1, v, {
+    "table"
+  })
+  do
+    local mt = getmetatable(v)
+    if mt then
+      mt.__type = ty
+    else
+      setmetatable(v, {
+        __type = ty
+      })
+    end
+  end
+  return v
+end
+expect = function(n, v, ts)
+  bios.expect(1, n, {
+    "number"
+  })
+  bios.expect(3, ts, {
+    "table"
+  })
+  for _index_0 = 1, #ts do
+    local ty = ts[_index_0]
+    if ty == typeof(v) then
+      return true
+    end
+  end
+  return error("bad argument #" .. tostring(n) .. " (expected " .. tostring(table.concat(ts, ' or ')) .. ", got " .. tostring(type(v)) .. ")", 2)
+end
+package = { }
+package.loaded = {
+  _G = _G,
+  bit32 = bit32,
+  coroutine = coroutine,
+  math = math,
+  package = package,
+  string = string,
+  table = table
+}
+package.path = "?;" .. "?.lua;" .. "?/init.lua;" .. "/lib/?;" .. "/lib/?.lua;" .. "/lib/?/init.lua;"
+package.config = "/\n;\n?\n!\n-"
+package.preload = { }
+local loadLib
+loadLib = function(name)
+  name = name:gsub("%.", "/")
+  local fullerr = ""
+  for pattern in package.path:gmatch("[^;]+") do
+    local path = pattern:gsub("%?", name)
+    if (fs.exists(path)) and (fs.isFile(path)) then
+      local fn, err = loadfile(path)
+      if fn then
+        return fn, path
+      else
+        return nil, err
+      end
+    else
+      fullerr = fullerr .. "  no file '" .. tostring(path) .. "'\n"
+    end
+  end
+  return nil, fullerr
+end
+package.loaders = {
+  (function(name)
+    do
+      local pkg = package.preload[name]
+      if pkg then
+        return pkg
+      else
+        return nil, "no field package.preload[" .. tostring(name) .. "]"
+      end
+    end
+  end),
+  loadLib
+}
+local sentinel = { }
+require = function(name)
+  expect(1, name, {
+    "string"
+  })
+  if package.loaded[name] == sentinel then
+    error("Loop detected requiring '" .. tostring(name) .. "'", 0)
+  end
+  do
+    local pkg = package.loaded[name]
+    if pkg then
+      return pkg
+    end
+  end
+  local fullerr = "Package '" .. tostring(name) .. "' could not be loaded:\n"
+  local _list_0 = package.loaders
+  for _index_0 = 1, #_list_0 do
+    local searcher = _list_0[_index_0]
+    local loader, err = searcher(name)
+    if loader then
+      package.loaded[name] = sentinel
+      local result = loader(err)
+      if not (result == nil) then
+        package.loaded[name] = result
+        return result
+      else
+        package.loaded[name] = true
+        return true
+      end
+    else
+      fullerr = fullerr .. err
+    end
+  end
+  return error(fullerr, 2)
+end
+PA_PRINT("Loading process manager...")
+term.clear()
+PA_PRINT("Loaded!")
+return PA_BREAK()
