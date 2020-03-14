@@ -59,77 +59,20 @@ export expect = (n, v, ts) ->
   error "bad argument ##{n} (expected #{table.concat ts, ' or '}, got #{type v})", 2
 
 --# require & package #--
-export package = {}
+libpkg = dofile "/lib/libpkg/init.lua"
+export package = libpkg.package
+export require = libpkg.require
 
-package.loaded = {
-  :_G
-  :bit32
-  :coroutine
-  :math
-  :package
-  :string
-  :table
-}
-package.path = "?;" ..
-               "?.lua;" ..
-               "?/init.lua;" ..
-               "/lib/?;" ..
-               "/lib/?.lua;" ..
-               "/lib/?/init.lua;"
-package.config  = "/\n;\n?\n!\n-"
-package.preload = {}
-
--- normal module loader
-loadLib = (name) ->
-  name    = name\gsub "%.", "/"
-  fullerr = ""
-  for pattern in package.path\gmatch "[^;]+"
-    path = pattern\gsub "%?", name
-    if (fs.exists path) and (fs.isFile path)
-      fn, err = loadfile path
-      if fn then return fn, path else return nil, err
-    else
-      fullerr ..= "  no file '#{path}'\n"
-  return nil, fullerr
-
-
-package.loaders = {
-  ((name) -> if pkg = package.preload[name] then return pkg else return nil, "no field package.preload[#{name}]")
-  loadLib
-}
-
-sentinel       = {}
-export require = (name) ->
-  expect 1, name, {"string"}
-  if package.loaded[name] == sentinel
-    error "Loop detected requiring '#{name}'", 0
-  if pkg = package.loaded[name]
-    return pkg
-
-  fullerr = "Package '#{name}' could not be loaded:\n"
-  for searcher in *package.loaders
-    loader, err = searcher name
-    if loader
-      package.loaded[name] = sentinel
-      result               = loader err
-      unless result == nil
-        package.loaded[name] = result
-        return result
-      else
-        package.loaded[name] = true
-        return true
-    else
-      fullerr ..= err
-  error fullerr, 2
+--# configuration #--
+libconf = require "libconf"
+export loadConfig  = libconf.loadConfig
+export writeConfig = libconf.writeConfig
 
 -- Wanted libs:
---   libfont
 --   libperipheral
---   libkbd
 --   libev (event system) (includes parallel)
 --   libv (for vws/pav)
 --   libcolor
---   libconf (settings)
 --   libhttp
 
 -- Wanted programs:
@@ -138,6 +81,11 @@ export require = (name) ->
 
 --# start process manager #--
 PA_PRINT "Loading process manager..."
+import State, Thread from require "libproc"
+
+-- Create main state
+mainState = State "main", 1
+call      = Thread mainState
 
 term.clear!
 PA_PRINT "Loaded!"
