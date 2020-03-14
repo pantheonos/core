@@ -1,1 +1,0 @@
-!cc = |> ^ Compiling %f...^ moonc -o %o %f |>
