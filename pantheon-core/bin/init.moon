@@ -20,6 +20,22 @@ export bios = {
 --# general exported utils #--
 -- fs.isFile
 fs.isFile = (f) -> not fs.isDir f
+-- math.root
+math.root = (nth, n) -> return n^(1/nth)
+-- table.getn
+table.getn or= (t) ->
+  len = 0
+  for _, _ in pairs t do len += 1
+  return len
+-- npairs
+-- ipairs, but does not stop if nil is found
+export npairs = (t) ->
+  keys = table.sort [k for k, v in pairs t when "number" == type k]
+  i    = 0
+  n    = #keys
+  ->
+    i += 1
+    return keys[i], t[keys[i]] if i <= n
 
 -- type function that respects __type and io.type
 export typeof = (v) ->
@@ -88,5 +104,5 @@ mainState = State "main", 1
 call      = Thread mainState
 
 term.clear!
-PA_PRINT "Loaded!"
+PA_PRINT "Finished!"
 PA_BREAK!

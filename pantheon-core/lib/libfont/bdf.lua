@@ -29,7 +29,7 @@ local function foreach(func, ...)
 end
 
 local function parseValue(str) 
-  local ok, res = pcall(loadstring("return " .. string.gsub(str, "`", "")))
+  local ok, res = pcall(load("return " .. string.gsub(str, "`", "")))
   if not ok then return str else return res end
 end
 

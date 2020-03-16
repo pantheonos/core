@@ -11,45 +11,95 @@ PLATFORM = -> if term.getGraphicsMode
     when 2 then "GFX"     -- graphics mode
   else "VANILLA"
 
--- TODO write functions that determine whether a pixel is a valid VANILLA, LGFX or GFX pixel.
+--# isValidColorIndex #--
+VANILLA_isValidColorIndex = (idx) ->
+  expect 1, clr, {"ColorIndex"}
+  return not idx.gfx
+
+LGFX_isValidColorIndex = VANILLA_isValidColorIndex
+
+GFX_isValidColorIndex = (idx) ->
+  expect 1, clr, {"ColorIndex"}
+  return idx.gfx
+
+isValidColorIndex = (idx) -> switch PLATFORM!
+  when "VANILLA" then VANILLA_isValidColorIndex idx
+  when "LGFX"    then LGFX_isValidColorIndex    idx
+  when "GFX"     then GFX_isValidColorIndex     idx
 
 --# setPixel #--
-VANILLA_setPixel = (pixel) ->
-  expect 1, pixel, {"VPixel"}
-  term.setCursorPos pixel.x, pixel.y
-  term.setBackgroundColor pixel.color -- TODO color may not be valid
+VANILLA_setPixel = (x, y, pixel) ->
+  expect 1, x,     {"number"}
+  expect 2, y,     {"number"}
+  expect 3, pixel, {"VPixel"}
+  error "Invalid color index #{pixel.color.value}" unless VANILLA_isValidColorIndex pixel.color
+  term.setCursorPos x, y
+  term.setBackgroundColor pixel.color.value
   term.setTextColor (pixel.foreground or term.getTextColor!)
   term.write (pixel.char or " ")
 
-LGFX_setPixel = (pixel) ->
-  expect 1, pixel, {"VPixel"}
-  term.setPixel pixel.x, pixel.y, pixel.color -- TODO color may not be valid
+LGFX_setPixel = (x, y, pixel) ->
+  expect 1, x,     {"number"}
+  expect 2, y,     {"number"}
+  expect 3, pixel, {"VPixel"}
+  error "Invalid color index #{pixel.color.value}" unless LGFX_isValidColorIndex pixel.color
+  term.setPixel x, y, pixel.color.value
 
-GFX_setPixel = (pixel) ->
-  expect 1, pixel, {"VPixel"}
-  term.setPixel pixel.x, pixel.y, pixel.color -- TODO color may not be valid
+GFX_setPixel = (x, y, pixel) ->
+  expect 1, x,     {"number"}
+  expect 2, y,     {"number"}
+  expect 3, pixel, {"VPixel"}
+  error "Invalid color index #{pixel.color.value}" unless GFX_isValidColorIndex pixel.color
+  term.setPixel x, y, pixel.color.value
+
+-- abstraction
+setPixel = (x, y, pixel) -> switch PLATFORM!
+  when "VANILLA" then VANILLA_setPixel x, y, pixel
+  when "LGFX"    then LGFX_setPixel    x, y, pixel
+  when "GFX"     then GFX_setPixel     x, y, pixel
 
 --# drawPixels #--
 VANILLA_drawPixels = (sx, sy, pixels) ->
   expect 1, sx,     {"number"}
   expect 2, sy,     {"number"}
   expect 3, pixels, {"table"}
-  pixell = [ [pixel.color for pixel in *line] for line in *pixels ] -- TODO transform pixel.color into a valid vanilla color
+  for y, line in ipairs pixels
+    for x, pixel in ipairs line
+      VANILLA_setPixel (x+sx), (y+sy), pixel
 
 LGFX_drawPixels = (sx, sy, pixels) ->
   expect 1, sx,     {"number"}
   expect 2, sy,     {"number"}
   expect 3, pixels, {"table"}
-  term.drawPixels sx, sy, pixels -- TODO check that this table of pixels has vanilla colors
+  final = {}
+  for y, line in ipairs pixels
+    final[y] = {}
+    for x, pixel in ipairs line
+      error "Invalid color index #{pixel.color.value}" unless LGFX_isValidColorIndex pixel.color
+      final[y][x] = pixel.color.value
+  term.drawPixels sx, sy, final
 
 GFX_drawPixels = (sx, sy, pixels) ->
   expect 1, sx,     {"number"}
   expect 2, sy,     {"number"}
   expect 3, pixels, {"table"}
-  term.drawPixels sx, sy, pixels
+  final = {}
+  for y, line in ipairs pixels
+    final[y] = {}
+    for x, pixel in ipairs line
+      error "Invalid color index #{pixel.color.value}" unless GFX_isValidColorIndex pixel.color
+      final[y][x] = pixel.color.value
+  term.drawPixels sx, sy, final
+
+-- abstraction
+drawPixels = (sx, sy, pixels) -> switch PLATFORM!
+  when "VANILLA" then VANILLA_setPixel pixel
+  when "LGFX"    then LGFX_setPixel    pixel
+  when "GFX"     then GFX_setPixel     pixel
 
 {
   :PLATFORM
-  :VANILLA_setPixel,   :LGFX_setPixel,   :GFX_setPixel
-  :VANILLA_drawPixels, :LGFX_drawPixels, :GFX_drawPixels
+  :VANILLA_isValidColorIndex, :LGFX_isValidColorIndex, :GFX_isValidColorIndex, :isValidColorIndex
+  :VANILLA_setPixel,          :LGFX_setPixel,          :GFX_setPixel,          :setPixel
+  :VANILLA_drawPixels,        :LGFX_drawPixels,        :GFX_drawPixels,        :drawPixels
 }
