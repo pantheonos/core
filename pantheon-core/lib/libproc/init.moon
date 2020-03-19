@@ -43,10 +43,9 @@ Thread = (state) -> (fn, priority=0, uid=newUID!) ->
   return this
 
 -- Runs all threads in a State
-runState = (state) -> (listener=os.pullEventRaw) ->
+runState = (state) ->
   expect 1, state,    {"State"}
-  expect 2, listener, {"function"}
-  raisin.manager.runGroup listener, state.instance
+  raisin.manager.runGroup state.instance
 
 -- Halts all management
 haltAll = raisin.manager.halt

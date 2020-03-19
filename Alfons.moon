@@ -5,7 +5,9 @@ tasks:
     clone "MCJack123/craftos2-rom", "pantheon-bios/reference/"
   -- compile bios
   compile_bios: =>
-    moonc "pantheon-bios"
+    for file in wildcard "pantheon-bios/**.moon"
+      continue if file\match "Alfons"
+      moonc file
     sh "cosrun image import pantheon-bios/project.yml 0 --dir pantheon-bios/"
   -- compile all other files
   compile: =>

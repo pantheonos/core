@@ -43,6 +43,7 @@ writeConf = (name, dump) ->
 libconf.loaders = {
   ((name) -> if pkg = libconf.preload[name] then return pkg else return nil, "no field libconf.preload[#{name}]")
   loadConf
+}
 libconf.writers = {
   ((name, dump) -> if libconf.preload[name] then libconf.preload[name] = dump else return nil, "no field libconf.preload[#{name}]")
   writeConf

@@ -88,7 +88,6 @@ export writeConfig = libconf.writeConfig
 --   libperipheral
 --   libev (event system) (includes parallel)
 --   libv (for vws/pav)
---   libcolor
 --   libhttp
 
 -- Wanted programs:
@@ -96,13 +95,18 @@ export writeConfig = libconf.writeConfig
 --   vws/pav
 
 --# start process manager #--
-PA_PRINT "Loading process manager..."
-import State, Thread from require "libproc"
+import State, Thread, runState from require "libproc"
 
 -- Create main state
+PA_PRINT "-> Starting libproc"
 mainState = State "main", 1
 call      = Thread mainState
 
-term.clear!
+--# run example program #--
+--call loadfile "/bin/vrh-example"
+--runState mainState
+dofile "/bin/vrh-example"
+
+--term.clear!
 PA_PRINT "Finished!"
 PA_BREAK!
