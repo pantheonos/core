@@ -4,13 +4,15 @@
 term.clear!
 term.setCursorPos 1, 1
 
+export K_VERSION = "0.1"
+
 -- Control flow:
 --   /bin/init
 --   -> Start process manager
 
 --# collect BIOS globals #--
 export bios = {
-  :PA_BREAK, :PA_PRINT
+  :PA_BREAK, :PA_PRINT, :PA_VERSION
   :expect
   :load, :loadfile, :dofile
   :bit32
@@ -84,8 +86,37 @@ libconf = require "libconf"
 export loadConfig  = libconf.loadConfig
 export writeConfig = libconf.writeConfig
 
+-- export serpent.block as inspect
+serpent = require "serpent"
+export inspect = serpent.block
+
+-- load pantheon configuration
+config = loadConfig "kernel"
+
+--# peripherals #--
+libperiph = require "libperiph"
+export Peripheral  = libperiph.Peripheral 
+export peripherals = libperiph.peripherals
+export findPeriph  = libperiph.find
+
+-- attach debugger
+if config.debug
+  export dbg     = libperiph.EmuPeripheral "debug0", "debugger"
+  export kprint  = dbg.methods.print dbg
+  export kdprint = (tag) -> (text) -> (dbg.methods.print dbg) "#{tag}: #{text}"
+  export kbreak  = dbg.methods.stop dbg
+  export kdump   = (text) ->
+    with fs.open "/kdump.txt", "w"
+      .write text
+      .close!
+else
+  export kprint  = ->
+  export kdprint = -> ->
+
+-- initial message
+kprint "pakernel #{K_VERSION} running on pabios #{PA_VERSION}"
+
 -- Wanted libs:
---   libperipheral
 --   libev (event system) (includes parallel)
 --   libv (for vws/pav)
 --   libhttp
@@ -98,15 +129,23 @@ export writeConfig = libconf.writeConfig
 import State, Thread, runState from require "libproc"
 
 -- Create main state
-PA_PRINT "-> Starting libproc"
+kprint "- creating libproc/main state"
 mainState = State "main", 1
 call      = Thread mainState
 
---# run example program #--
---call loadfile "/bin/vrh-example"
---runState mainState
-dofile "/bin/vrh-example"
+--# register daemons #--
+kprint "- registering daemons"
+call loadfile "/bin/pd" -- peripheral daemon
+--call loadfile "/bin/vd" -- VRH daemon
+
+--# register example program #--
+kprint "- registering example program"
+call loadfile "/bin/vrh-example"
+
+--# run main state #--
+kprint "- running main state"
+runState mainState
 
 --term.clear!
-PA_PRINT "Finished!"
+kprint "kernel exectution completed"
 PA_BREAK!

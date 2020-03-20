@@ -22,7 +22,7 @@ tasks:
     for file in wildcard "pantheon-core/bin/*"
       continue if file\match "moon"
       fs.delete file
-    for file in wildcard "pantheon-core/lib/*/*.lua"
+    for file in wildcard "pantheon-core/lib/**.lua"
       continue if file\match "raisin"
       continue if file\match "bdf"
       continue if file\match "json"

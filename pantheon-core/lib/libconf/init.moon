@@ -5,11 +5,12 @@ serpent = require "serpent"
 
 -- Configuration files are stored in `/etc/` with `.conf` extensions
 -- This module is written in a require manner, but with a different path and loaders.
-libconf      = {}
-libconf.path = "?.conf.lua;" ..
-               "?/conf.lua;" ..
-               "/etc/?.conf.lua;" ..
-               "/etc/?/conf.lua;"
+libconf         = {}
+libconf.loaded  = {}
+libconf.path    = "?.conf.lua;" ..
+                  "?/conf.lua;" ..
+                  "/etc/?.conf.lua;" ..
+                  "/etc/?/conf.lua;"
 libconf.config  = "/\n;\n?\n!\n-"
 libconf.preload = {}
 

@@ -75,17 +75,15 @@ getMethodsNative = (side) ->
         return native.call sd, "getMethodsRemote", side
 
 -- Wraps a Peripheral
-Peripheral = (id, kind, _methods=(getMethodsNative id)) ->
+Peripheral = (id, kind=(getTypeNative id), _methods=(getMethodsNative id)) ->
   expect 1, id,       {"string"}
   expect 2, kind,     {"string"}
   expect 3, _methods, {"table"}
-  -- uppercase kind
-  kind = firstUpper kind
   -- Build method list
   methods = {}
   for method in *_methods
     methods[method] = (P) ->
-      expect 1, P, {"P#{kind}"}
+      expect 1, P, {"P#{firstUpper kind}"}
       return (...) -> (callNative id) method, ...
   -- Add special methods
   methods.meta = {
@@ -96,16 +94,16 @@ Peripheral = (id, kind, _methods=(getMethodsNative id)) ->
   }
   -- return object
   this = {:id, :kind, :methods}
-  return typeset this, "P#{kind}"
+  return typeset this, "P#{firstUpper kind}"
 
 -- Creates a new peripheral with periphemu
 -- Wraps a Peripheral
-EmuPeripheral = (id, kind) ->
+EmuPeripheral = (id, kind, ...) ->
   expect 1, id,       {"string"}
   expect 2, kind,     {"string"}
   -- create peripheral
   return false unless periphemu
-  periphemu.create id, kind
+  periphemu.create id, kind, ...
   -- wrap it
   return Peripheral id, kind, getMethodsNative id
 
