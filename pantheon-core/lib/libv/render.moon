@@ -6,7 +6,7 @@ import setPixel, drawPixels from require "libv.platform"
 -- The render position does not change here, but is instead determined
 -- by the capture position. (See libv.frame.capture)
 render = (scr) ->
-  expect 1, scr, {"VScreen"}
+  expect 1, scr, {"VScreen"}, "render"
   -- screen = scr.screen
   -- region = scr.region
   -- frame  = region.frame

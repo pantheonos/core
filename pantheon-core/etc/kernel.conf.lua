@@ -1,3 +1,4 @@
 return {
-  debug = true,
+  debug    = true,
+  graphics = "GFX",
 }

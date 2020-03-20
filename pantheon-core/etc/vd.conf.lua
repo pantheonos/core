@@ -1,6 +1,6 @@
 -- vd configuration file
 return {
   gridSize = "screen",
-  regionSize = "screen",
+  frameSize = "screen",
   maxBuffers = 10
 }

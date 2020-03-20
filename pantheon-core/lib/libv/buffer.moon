@@ -11,25 +11,26 @@ Buffer = =>
   @resizable or= true
   @writable  or= true
   --
-  expect 0, @,          {"table"}
-  expect 1, @w,         {"number"}
-  expect 2, @h,         {"number"}
-  expect 4, @visible,   {"boolean"}
-  expect 5, @movable,   {"boolean"}
-  expect 6, @resizable, {"boolean"}
-  expect 7, @writable,  {"boolean"}
+  expect 0, @, {"table"}, "Buffer"
+  expect 1, @w, {"number"}, "Buffer"
+  expect 2, @h, {"number"}, "Buffer"
+  expect 4, @visible, {"boolean"}, "Buffer"
+  expect 5, @movable, {"boolean"}, "Buffer"
+  expect 6, @resizable, {"boolean"}, "Buffer"
+  expect 7, @writable, {"boolean"}, "Buffer"
   --
   error "Width must be above 0" if @w < 1
   error "Height must be above 0" if @h < 1
   --
   @buffer = {}
-  this = typeset @, "VBuffer"
+  return typeset @, "VBuffer"
+
 
 -- Resize a buffer
 resize = => (w, h) ->
-  expect 1, @, {"VBuffer"}
-  expect 2, w, {"number"}
-  expect 3, h, {"number"}
+  expect 1, @, {"VBuffer"}, "resize"
+  expect 2, w, {"number"}, "resize"
+  expect 3, h, {"number"}, "resize"
   error "Width must be above 0" if w < 1
   error "Height must be above 0" if h < 1
   return false unless @resizable
@@ -38,10 +39,10 @@ resize = => (w, h) ->
 
 -- Sets a pixel in the buffer
 setPixel = => (x, y, pixel) ->
-  expect 1, @,     {"VBuffer"}
-  expect 2, x,     {"number"}
-  expect 3, y,     {"number"}
-  expect 4, pixel, {"VPixel"}
+  expect 1, @, {"VBuffer"}, "setPixel"
+  expect 2, x, {"number"}, "setPixel"
+  expect 3, y, {"number"}, "setPixel"
+  expect 4, pixel, {"VPixel"}, "setPixel"
   return false unless @writable
   return false if (x > @w) or (y > @h)
   @buffer[x]    = {} unless @buffer[x]
@@ -50,9 +51,9 @@ setPixel = => (x, y, pixel) ->
 
 -- Unsets a pixel in the buffer
 unsetPixel = => (x, y) ->
-  expect 1, @, {"VBuffer"}
-  expect 2, x, {"number"}
-  expect 3, y, {"number"}
+  expect 1, @, {"VBuffer"}, "unsetPixel"
+  expect 2, x, {"number"}, "unsetPixel"
+  expect 3, y, {"number"}, "unsetPixel"
   return false unless @writable
   return false if (x > @w) or (y > @h)
   if @buffer[x] and @buffer[x][y]
@@ -62,10 +63,10 @@ unsetPixel = => (x, y) ->
 
 -- Draws a buffer-like table onto the buffer
 drawPixels = => (sx, sy, pixels) ->
-  expect 1, @,      {"VBuffer"}
-  expect 2, sx,     {"number"}
-  expect 3, sy,     {"number"}
-  expect 4, pixels, {"table"}
+  expect 1, @, {"VBuffer"}, "drawPixels"
+  expect 2, sx, {"number"}, "drawPixels"
+  expect 3, sy, {"number"}, "drawPixels"
+  expect 4, pixels, {"table"}, "drawPixels"
   return false unless @writable
   return false if (sx > @w) or (sy > @h)
   for x, row in npairs pixels

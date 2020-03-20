@@ -53,7 +53,7 @@ libconf.writers = {
 -- Loads a configuration file
 sentinel   = {}
 loadConfig = (name) ->
-  expect 1, name, {"string"}
+  expect 1, name, {"string"}, "loadConfig"
   if libconf.loaded[name] == sentinel
     error "Loop detected loading '#{name}'", 0
   if conf = libconf.loaded[name]
@@ -77,8 +77,8 @@ loadConfig = (name) ->
 
 -- Writes into a configuration file
 writeConfig = (name) -> (tbl) ->
-  expect 1, name, {"string"}
-  expect 2, tbl,  {"table"}
+  expect 1, name, {"string"}, "writeConfig"
+  expect 2, tbl, {"table"}, "writeConfig"
   --
   fullerr = "Configuration '#{name}' could not be written:\n"
   for writer in *libconf.writers

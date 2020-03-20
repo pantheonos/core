@@ -28,7 +28,7 @@ colors.lightGrey = colors.lightGray
 
 -- Converts from Hex to RGB
 hexToRGB = (hex) ->
-  expect 1, hex, {"number"}
+  expect 1, hex, {"number"}, "hexToRGB"
   r = (band (rshift hex, 16), 0xFF) / 255
   g = (band (rshift hex, 8),  0xFF) / 255
   b = (band hex,              0xFF) / 255
@@ -37,9 +37,9 @@ hexToRGB = (hex) ->
 -- Converts from RGB to Hex
 -- Components must be in range 0-255
 RGBToHex = (r, g, b) ->
-  expect 1, r, {"number"}
-  expect 2, g, {"number"}
-  expect 3, b, {"number"}
+  expect 1, r, {"number"}, "RGBToHex"
+  expect 2, g, {"number"}, "RGBToHex"
+  expect 3, b, {"number"}, "RGBToHex"
   rh = lshift (band r, 0xFF), 16
   gh = lshift (band g, 0xFF), 8
   bh =         band b, 0xFF
@@ -52,14 +52,14 @@ RGBToHex = (r, g, b) ->
 Color = (r, g, b, name="") ->
   local color
   if b
-    expect 1, r,    {"number"}
-    expect 2, g,    {"number"}
-    expect 3, b,    {"number"}
-    expect 4, name, {"string"}
+    expect 1, r, {"number"}, "Color"
+    expect 2, g, {"number"}, "Color"
+    expect 3, b, {"number"}, "Color"
+    expect 4, name, {"string"}, "Color"
     color = {:name, :r, :g, :b}
   else
-    expect 1, r, {"number"}
-    expect 2, g, {"string"}
+    expect 1, r, {"number"}, "Color"
+    expect 2, g, {"string"}, "Color"
     color      = {hexToRGB r}
     color.name = g
   return typeset color, "Color"
@@ -68,20 +68,20 @@ Color = (r, g, b, name="") ->
 -- (2^i) where i is between 0 and 15
 -- i where i is between 0 and 255
 ColorIndex = (idx, gfx=false) ->
-  expect 1, idx, {"number"}
-  expect 2, gfx, {"boolean"}
+  expect 1, idx, {"number"}, "ColorIndex"
+  expect 2, gfx, {"boolean"}, "ColorIndex"
   index = typeset { :gfx, value: 0 }, "ColorIndex"
   if gfx
     error "Invalid index #{idx}" if (idx < 0) or (idx > 255)
     index.value = idx
   else
     error "Invalid index #{2^idx}" if (idx < 0) or (idx > 15)
-    index.value = 2^i
+    index.value = 2^idx
   return index
 
 -- Gets the i from 2^i
 toI = (num) ->
-  expect 1, num, {"number"}
+  expect 1, num, {"number"}, "toI"
   total = 0
   while num > 0 do
     return total if (num % 2) != 0
@@ -93,17 +93,17 @@ Palette = (name) -> typeset {:name, colors: {}}, "Palette"
 
 -- Adds a color to a palette
 addColor = (pal) -> (idx, clr) ->
-  expect 1, pal, {"Palette"}
-  expect 2, idx, {"ColorIndex"}
-  expect 3, clr, {"Color"}
+  expect 1, pal, {"Palette"}, "addColor"
+  expect 2, idx, {"ColorIndex"}, "addColor"
+  expect 3, clr, {"Color"}, "addColor"
   pal.colors[idx.value] = clr
   pal.colors[clr.name]  = clr
   return pal
 
 -- Removes a color from a palette by index
 removeColor = (pal) -> (idx) ->
-  expect 1, pal, {"Palette"}
-  expect 2, idx, {"ColorIndex"}
+  expect 1, pal, {"Palette"}, "removeColor"
+  expect 2, idx, {"ColorIndex"}, "removeColor"
   error "Color #{idx.value} in #{pal.name} not found" unless pal.colors[idx.value]
   clr                   = pal.colors[idx.value]
   pal.colors[clr.name]  = nil
@@ -112,7 +112,7 @@ removeColor = (pal) -> (idx) ->
 
 -- Applies a palette
 apply = (pal) ->
-  expect 1, pal, {"Palette"}
+  expect 1, pal, {"Palette"}, "apply"
   if term.getGraphicsMode
     switch term.getGraphicsMode!
       when 0, 1

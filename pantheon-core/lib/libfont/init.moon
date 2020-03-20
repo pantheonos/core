@@ -28,7 +28,7 @@ serpent = require "serpent"
 
 -- Loads a font from a path
 loadFont = (path) ->
-  expect 1, path, {"string"}
+  expect 1, path, {"string"}, "loadFont"
   return false, "#{path} does not exist" unless fs.exists path
   font = dofile path, {}
   return false, "#{path} is not a legal font" unless ("table" == type font) and font.name
@@ -36,8 +36,8 @@ loadFont = (path) ->
 
 -- Writes a font to a path
 writeFont = (path, font) ->
-  expect 1, path, {"string"}
-  expect 2, font, {"Font"}
+  expect 1, path, {"string"}, "writeFont"
+  expect 2, font, {"Font"}, "writeFont"
   with fs.open path, "w"
     return false, "Could not open #{path}" unless .close
     \write serpent.dump font
@@ -46,8 +46,8 @@ writeFont = (path, font) ->
 
 -- Converts a font from bdf format into Pantheon format
 bdfToPantheon = (name, bdf) ->
-  expect 1, name, {"string"}
-  expect 2, bdf,  {"table"}
+  expect 1, name, {"string"}, "bdfToPantheon"
+  expect 2, bdf, {"table"}, "bdfToPantheon"
   font = typeset {}, "Font"
   font.name       = name
   font.width      = bdf.bounds.width

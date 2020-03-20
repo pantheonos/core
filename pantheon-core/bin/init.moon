@@ -32,7 +32,8 @@ table.getn or= (t) ->
 -- npairs
 -- ipairs, but does not stop if nil is found
 export npairs = (t) ->
-  keys = table.sort [k for k, v in pairs t when "number" == type k]
+  keys = [k for k, v in pairs t when "number" == type k]
+  table.sort keys
   i    = 0
   n    = #keys
   ->
@@ -86,9 +87,8 @@ libconf = require "libconf"
 export loadConfig  = libconf.loadConfig
 export writeConfig = libconf.writeConfig
 
--- export serpent.block as inspect
-serpent = require "serpent"
-export inspect = serpent.block
+--# inspecting #--
+export inspect = require "inspect"
 
 -- load pantheon configuration
 config = loadConfig "kernel"
@@ -109,12 +109,26 @@ if config.debug
     with fs.open "/kdump.txt", "w"
       .write text
       .close!
+  -- expect, using typeof and debug
+  export expect = (n, v, ts, fr="") ->
+    bios.expect 1, n,  {"number"}
+    bios.expect 3, ts, {"table"}
+    for ty in *ts
+      return true if ty == typeof v
+    kprint "#{fr}: bad argument ##{n} (expected #{table.concat ts, ' or '}, got #{type v})", 2
+    kbreak!
+  -- print message
+  kprint "pakernel #{K_VERSION} running on pabios #{PA_VERSION}"
 else
   export kprint  = ->
   export kdprint = -> ->
 
--- initial message
-kprint "pakernel #{K_VERSION} running on pabios #{PA_VERSION}"
+-- set graphics mode
+switch config.graphics
+  when "VANILLA" then term.setGraphicsMode 0
+  when "LGFX"    then term.setGraphicsMode 1
+  when "GFX"     then term.setGraphicsMode 2
+kprint "gfx mode: #{config.graphics or 'VANILLA'}"
 
 -- Wanted libs:
 --   libev (event system) (includes parallel)
@@ -136,11 +150,11 @@ call      = Thread mainState
 --# register daemons #--
 kprint "- registering daemons"
 call loadfile "/bin/pd" -- peripheral daemon
---call loadfile "/bin/vd" -- VRH daemon
+call loadfile "/bin/vd" -- VRH daemon
 
 --# register example program #--
 kprint "- registering example program"
-call loadfile "/bin/vrh-example"
+call loadfile "/bin/example/fontrender"
 
 --# run main state #--
 kprint "- running main state"

@@ -36,7 +36,7 @@ listAllNative = ->
 -- Checks whether a side is present
 -- Practically equivalent to peripheral.isPresent (native CC)
 isPresentNative = (side) ->
-  expect 1, side, {"string"}
+  expect 1, side, {"string"}, "isPresentNative"
   if (native.isPresent side) or (contains listAllNative!, side) 
     return true
   return false
@@ -44,7 +44,7 @@ isPresentNative = (side) ->
 -- Gets the type of a peripheral
 -- Practically equivalent to peripheral.getType (native CC)
 getTypeNative = (side) ->
-  expect 1, side, {"string"}
+  expect 1, side, {"string"}, "getTypeNative"
   if native.isPresent side
     return native.getType side
   for sd in *SIDES
@@ -54,8 +54,8 @@ getTypeNative = (side) ->
 
 -- Calls a peripheral natively
 callNative = (side) -> (method, ...) ->
-  expect 1, side,   {"string"}
-  expect 2, method, {"string"}
+  expect 1, side, {"string"}, "callNative"
+  expect 2, method, {"string"}, "callNative"
   if native.isPresent side
     return native.call side, method, ...
   for sd in *SIDES
@@ -66,7 +66,7 @@ callNative = (side) -> (method, ...) ->
 -- Gets the methods of a peripheral
 -- Practically equivalent to peripheral.getMethods (native CC)
 getMethodsNative = (side) ->
-  expect 1, side, {"string"}
+  expect 1, side, {"string"}, "getMethodsNative"
   if native.isPresent side
     return native.getMethods side
   for sd in *SIDES
@@ -76,14 +76,14 @@ getMethodsNative = (side) ->
 
 -- Wraps a Peripheral
 Peripheral = (id, kind=(getTypeNative id), _methods=(getMethodsNative id)) ->
-  expect 1, id,       {"string"}
-  expect 2, kind,     {"string"}
-  expect 3, _methods, {"table"}
+  expect 1, id, {"string"}, "Peripheral"
+  expect 2, kind, {"string"}, "Peripheral"
+  expect 3, _methods, {"table"}, "Peripheral"
   -- Build method list
   methods = {}
   for method in *_methods
     methods[method] = (P) ->
-      expect 1, P, {"P#{firstUpper kind}"}
+      expect 1, P, {"P#{firstUpper kind}"}, method
       return (...) -> (callNative id) method, ...
   -- Add special methods
   methods.meta = {
@@ -99,8 +99,8 @@ Peripheral = (id, kind=(getTypeNative id), _methods=(getMethodsNative id)) ->
 -- Creates a new peripheral with periphemu
 -- Wraps a Peripheral
 EmuPeripheral = (id, kind, ...) ->
-  expect 1, id,       {"string"}
-  expect 2, kind,     {"string"}
+  expect 1, id, {"string"}, "EmuPeripheral"
+  expect 2, kind, {"string"}, "EmuPeripheral"
   -- create peripheral
   return false unless periphemu
   periphemu.create id, kind, ...
@@ -118,7 +118,7 @@ removeEmu = (ep) ->
 --   (side/id, kind) -> boolean
 -- Result will be added if boolean is true.
 peripheral = (filter=(->true)) ->
-  expect 1, filter, {"function"}
+  expect 1, filter, {"function"}, "peripheral"
   results = {}
   for id in *listAllNative!
     kind = getTypeNative id

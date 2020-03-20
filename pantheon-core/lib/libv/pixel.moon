@@ -4,12 +4,14 @@
 import ColorIndex, toI   from require "libcolor"
 import isValidColorIndex from require "libv.platform"
 
-Pixel = (x, y, color, foreground=(ColorIndex toI term.getTextColor!), char=" ") ->
-  expect 1, color,      {"ColorIndex"}
-  expect 2, foreground, {"ColorIndex"}
-  expect 3, char,       {"string"}
-  error "Invalid color index #{color.value}"      unless isValidColorIndex color
-  error "Invalid color index #{foreground.value}" unless isValidColorIndex foreground
+Pixel = (color, foreground, char=" ") ->
+  expect 1, color,      {"ColorIndex"},        "Pixel"
+  expect 2, foreground, {"ColorIndex", "nil"}, "Pixel"
+  expect 3, char,       {"string"},            "Pixel"
+  kprint "calling ivci"
+  error "Invalid color index #{color.value}" unless isValidColorIndex color
+  if foreground
+    error "Invalid foreground color index #{foreground.value}" unless isValidColorIndex foreground
   return typeset {
     :color, :foreground, :char
   }, "VPixel"

@@ -1,4 +1,5 @@
 .cosrun
+.vscode
 .tup
 cosrun.yml
 Makefile

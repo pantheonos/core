@@ -42,7 +42,7 @@ package.loaders = {
 
 sentinel = {}
 require  = (name) ->
-  expect 1, name, {"string"}
+  expect 1, name, {"string"}, "require"
   if package.loaded[name] == sentinel
     error "Loop detected requiring '#{name}'", 0
   if pkg = package.loaded[name]
