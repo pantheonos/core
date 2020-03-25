@@ -29,6 +29,13 @@ table.getn or= (t) ->
   len = 0
   for _, _ in pairs t do len += 1
   return len
+-- gets the platform
+export PLATFORM = -> if term.getGraphicsMode
+  switch term.getGraphicsMode!
+    when 0 then "VANILLA" -- vanilla cc
+    when 1 then "LGFX"    -- limited graphics
+    when 2 then "GFX"     -- graphics mode
+  else "VANILLA"
 -- npairs
 -- ipairs, but does not stop if nil is found
 export npairs = (t) ->
@@ -150,11 +157,12 @@ call      = Thread mainState
 --# register daemons #--
 kprint "- registering daemons"
 call loadfile "/bin/pd" -- peripheral daemon
-call loadfile "/bin/vd" -- VRH daemon
+--call loadfile "/bin/vd" -- VRH daemon
+call loadfile "/bin/vd2"
 
 --# register example program #--
 kprint "- registering example program"
-call loadfile "/bin/example/fontrender"
+call loadfile "/bin/example/fontrender-vd2"
 
 --# run main state #--
 kprint "- running main state"

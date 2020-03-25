@@ -1,4 +1,4 @@
--- pantheon/libv.platform
+-- pantheon/libv2.platform
 -- Platform detection and specifics
 -- By daelvn
 

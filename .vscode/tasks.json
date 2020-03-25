@@ -1,0 +1,20 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Compile & Run",
+      "type": "shell",
+      "command": "alfons compile run"
+    },
+    {
+      "label": "Clean",
+      "type": "shell",
+      "command": "alfons clean"
+    },
+    {
+      "label": "Compile BIOS",
+      "type": "shell",
+      "command": "alfons compile_bios"
+    }
+  ]
+}
