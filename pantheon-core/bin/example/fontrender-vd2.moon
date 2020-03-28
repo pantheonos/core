@@ -1,5 +1,5 @@
 import loadFont from require "libfont"
-import PLATFORM from require "libv2.platform"
+import PLATFORM from require "libv.platform"
 font_CraftOS, err  = loadFont "/etc/fonts/CraftOS-Normal-9.font.lua"
 echo               = kdprint "fontrender"
 
@@ -26,7 +26,7 @@ setPx = setPixel this
 --# do the writing #--
 echo "perform writing on window"
 import Pixel      from require "libv.pixel"
-import ColorIndex from require "libcolor2"
+import ColorIndex from require "libcolor"
 phrase = {"H", "e", "l", "l", "o", "!"}
 xoff   = 0
 yoff   = 0

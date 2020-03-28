@@ -1,18 +1,35 @@
 -- pantheon/libv.pixel
 -- Pixel creation and handling
 -- By daelvn
-import ColorIndex, toI   from require "libcolor"
+import ColorIndex        from require "libcolor"
 import isValidColorIndex from require "libv.platform"
 
-Pixel = (color, foreground, char=" ") ->
-  expect 1, color,      {"ColorIndex"},        "Pixel"
-  expect 2, foreground, {"ColorIndex", "nil"}, "Pixel"
-  expect 3, char,       {"string"},            "Pixel"
-  error "Invalid color index #{color.value}" unless isValidColorIndex color
-  if foreground
-    error "Invalid foreground color index #{foreground.value}" unless isValidColorIndex foreground
+-- Creates a new pixel
+Pixel = (bg, fg, char=" ") ->
+  expect 1, bg,   {"ColorIndex"},        "Pixel"
+  expect 2, fg,   {"ColorIndex", "nil"}, "Pixel"
+  expect 3, char, {"string"},            "Pixel"
+  --
+  error "Invalid color index #{bg.value}" unless isValidColorIndex bg
+  if fg
+    error "Invalid foreground color index #{bg.value}" unless isValidColorIndex fg
+  --
   return typeset {
-    :color, :foreground, :char
+    :bg, :fg, :char
   }, "VPixel"
 
-{ :Pixel }
+-- Compares two pixels
+comparePixels = (pa, pb) ->
+  if pa.bg.value != pb.bg.value
+    return false
+  if PLATFORM! == "VANILLA"
+    if pa.fg.value != pb.fg.value
+      return false
+    if pa.char != pb.char
+      return false
+  --
+  return true
+
+{
+  :Pixel, :comparePixels
+}

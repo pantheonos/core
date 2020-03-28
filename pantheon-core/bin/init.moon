@@ -158,11 +158,11 @@ call      = Thread mainState
 kprint "- registering daemons"
 call loadfile "/bin/pd" -- peripheral daemon
 --call loadfile "/bin/vd" -- VRH daemon
-call loadfile "/bin/vd2"
+call loadfile "/bin/vd"
 
 --# register example program #--
 kprint "- registering example program"
-call loadfile "/bin/example/fontrender-vd2"
+call loadfile "/bin/example/fontrender-vd"
 
 --# run main state #--
 kprint "- running main state"
