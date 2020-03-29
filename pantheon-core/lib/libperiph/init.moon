@@ -103,9 +103,12 @@ EmuPeripheral = (id, kind, ...) ->
   expect 2, kind, {"string"}, "EmuPeripheral"
   -- create peripheral
   return false unless periphemu
-  periphemu.create id, kind, ...
-  -- wrap it
-  return Peripheral id, kind, getMethodsNative id
+  if ok = periphemu.create id, kind, ...
+    -- wrap it
+    return Peripheral id, kind, getMethodsNative id
+  else
+    -- could not create peripheral
+    return false, "Could not create peripheral #{id}"
 
 -- Removes a periphemu peripheral.
 removeEmu = (ep) ->

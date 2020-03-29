@@ -108,7 +108,11 @@ export findPeriph  = libperiph.find
 
 -- attach debugger
 if config.debug
+  -- create debugger peripheral
   export dbg     = libperiph.EmuPeripheral "debug0", "debugger"
+  unless dbg
+    error "Could not attach debugger. Halting."
+  -- export k* debugging symbols
   export kprint  = dbg.methods.print dbg
   export kdprint = (tag) -> (text) -> (dbg.methods.print dbg) "#{tag}: #{text}"
   export kbreak  = dbg.methods.stop dbg
