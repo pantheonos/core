@@ -1,8 +1,11 @@
 import loadFont from require "libfont"
-import colors   from require "libcolor"
-import PLATFORM from require "libv.platform"
+import find     from require "libproc"
 font_CraftOS, err  = loadFont "/etc/fonts/CraftOS-Normal-9.font.lua"
 echo               = kdprint "fontrender"
+
+unless find "/bin/vd"
+  echo "could not find a V active session. shutting down."
+  return false
 
 --# start #--
 echo "starting up on platform #{PLATFORM!}"
@@ -45,5 +48,5 @@ for char in *phrase
 echo "render window"
 vrh.render!
 
---# halt #--
-PA_BREAK!
+--# return #--
+return true

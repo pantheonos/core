@@ -19,70 +19,8 @@ export bios = {
   :sleep
 }
 
---# general exported utils #--
--- fs.isFile
-fs.isFile = (f) -> not fs.isDir f
--- math.root
-math.root = (nth, n) -> return n^(1/nth)
--- table.getn
-table.getn or= (t) ->
-  len = 0
-  for _, _ in pairs t do len += 1
-  return len
--- gets the platform
-export PLATFORM = -> if term.getGraphicsMode
-  switch term.getGraphicsMode!
-    when 0 then "VANILLA" -- vanilla cc
-    when 1 then "LGFX"    -- limited graphics
-    when 2 then "GFX"     -- graphics mode
-  else "VANILLA"
--- npairs
--- ipairs, but does not stop if nil is found
-export npairs = (t) ->
-  keys = [k for k, v in pairs t when "number" == type k]
-  table.sort keys
-  i    = 0
-  n    = #keys
-  ->
-    i += 1
-    return keys[i], t[keys[i]] if i <= n
-
--- type function that respects __type and io.type
-export typeof = (v) ->
-  -- get metatable
-  local meta
-  if "table" == type v
-    if type_mt = getmetatable v
-      meta = type_mt.__type
-  -- check how to obtain type
-  -- __type
-  if meta
-    switch type meta
-      when "function" then return meta v
-      when "string"   then return meta
-  -- io.type()
-  elseif io.type v
-    return "io"
-  -- type()
-  else
-    return type v
-
--- sets __type for a table
-export typeset = (v, ty) ->
-  bios.expect 1, v, {"table"}
-  if mt = getmetatable v
-    mt.__type = ty
-  else
-    setmetatable v, __type: ty
-  return v
-
--- expect, using typeof
-export expect = (n, v, ts) ->
-  bios.expect 1, n,  {"number"}
-  bios.expect 3, ts, {"table"}
-  for ty in *ts
-    return true if ty == typeof v
-  error "bad argument ##{n} (expected #{table.concat ts, ' or '}, got #{type v})", 2
+--# load libc #--
+libc = dofile "/lib/libc/init.lua"
 
 --# require & package #--
 libpkg = dofile "/lib/libpkg/init.lua"
@@ -94,11 +32,15 @@ libconf = require "libconf"
 export loadConfig  = libconf.loadConfig
 export writeConfig = libconf.writeConfig
 
---# inspecting #--
+--# kikito libs #--
 export inspect = require "inspect"
+export memoize = require "memoize"
 
 -- load pantheon configuration
 config = loadConfig "kernel"
+-- set some defaults
+config.debug or= false
+config.http  or= true
 
 --# peripherals #--
 libperiph = require "libperiph"
@@ -109,25 +51,11 @@ export findPeriph  = libperiph.find
 -- attach debugger
 if config.debug
   -- create debugger peripheral
-  export dbg     = libperiph.EmuPeripheral "debug0", "debugger"
-  unless dbg
-    error "Could not attach debugger. Halting."
-  -- export k* debugging symbols
-  export kprint  = dbg.methods.print dbg
-  export kdprint = (tag) -> (text) -> (dbg.methods.print dbg) "#{tag}: #{text}"
-  export kbreak  = dbg.methods.stop dbg
-  export kdump   = (text) ->
-    with fs.open "/kdump.txt", "w"
-      .write text
-      .close!
-  -- expect, using typeof and debug
-  export expect = (n, v, ts, fr="") ->
-    bios.expect 1, n,  {"number"}
-    bios.expect 3, ts, {"table"}
-    for ty in *ts
-      return true if ty == typeof v
-    kprint "#{fr}: bad argument ##{n} (expected #{table.concat ts, ' or '}, got #{type v})", 2
-    kbreak!
+  export dbg = libperiph.EmuPeripheral "debug0", "debugger"
+  error "Could not attach debugger. Halting." unless dbg
+  -- export debugging symbols
+  defineAll = require "libc.debug"
+  defineAll dbg
   -- print message
   kprint "pakernel #{K_VERSION} running on pabios #{PA_VERSION}"
 else
@@ -150,27 +78,21 @@ kprint "gfx mode: #{config.graphics or 'VANILLA'}"
 --   pashell
 --   vws/pav
 
---# start process manager #--
-import State, Thread, runState from require "libproc"
-
--- Create main state
-kprint "- creating libproc/main state"
-mainState = State "main", 1
-call      = Thread mainState
+--# start proc management #--
+import runProcd from dofile "/bin/procd"
 
 --# register daemons #--
 kprint "- registering daemons"
-call loadfile "/bin/pd" -- peripheral daemon
---call loadfile "/bin/vd" -- VRH daemon
-call loadfile "/bin/vd"
+callFile "/bin/pd" -- peripheral daemon
+callFile "/bin/vd" -- rendering daemon
 
 --# register example program #--
 kprint "- registering example program"
-call loadfile "/bin/example/fontrender-vd"
+callFile "/bin/example/fontrender"
 
 --# run main state #--
-kprint "- running main state"
-runState mainState
+kprint "- running procd"
+runProcd!
 
 --term.clear!
 kprint "kernel exectution completed"

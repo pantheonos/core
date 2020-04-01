@@ -1,7 +1,14 @@
 ---
 name: core
+attachments:
+  /: pantheon-core/root/
+  boot/: pantheon-bios/pantheon-bios/images/
+  /tmp: pantheon-core/tmp/
+  /lib: pantheon-core/lib/
+  /etc: pantheon-core/etc/
+  /bin: pantheon-core/bin/
 mountfile: |
-  local attachments = {['/bin']='pantheon-core/bin/',['/etc']='pantheon-core/etc/',['boot/']='pantheon-bios/pantheon-bios/images/',['/lib']='pantheon-core/lib/',['/']='pantheon-core/root/',}
+  local attachments = {['/']='pantheon-core/root/',['/etc']='pantheon-core/etc/',['/bin']='pantheon-core/bin/',['/lib']='pantheon-core/lib/',['/tmp']='pantheon-core/tmp/',['boot/']='pantheon-bios/pantheon-bios/images/',}
   if not mounter then
     error("Not running in CraftOS-PC", 2)
   end
@@ -11,10 +18,4 @@ mountfile: |
       mounter.mount(inside, outside, false)
     end
   end
-attachments:
-  /bin: pantheon-core/bin/
-  boot/: pantheon-bios/pantheon-bios/images/
-  /etc: pantheon-core/etc/
-  /lib: pantheon-core/lib/
-  /: pantheon-core/root/
 ...

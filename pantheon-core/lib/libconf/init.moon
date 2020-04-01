@@ -73,7 +73,7 @@ loadConfig = (name) ->
         return true
     else
       fullerr ..= err
-  error fullerr, 2
+  return fullerr, 2
 
 -- Writes into a configuration file
 writeConfig = (name) -> (tbl) ->

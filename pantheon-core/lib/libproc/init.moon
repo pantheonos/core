@@ -81,11 +81,21 @@ remove = (any) ->
   expect 1, any, {"Thread", "State"}, "remove"
   return any.instance\remove!
 
+-- Finds a thread in a certain state
+find = (state) -> (pat) ->
+  expect 1, state, {"State"},  "find"
+  expect 2, pat,   {"string"}, "find"
+  results = {}
+  for thread in *state.threads
+    if thread\match pat
+      table.insert results, thread
+  return table.unpack results
+
 -- Return all
 {
   :newUID
   :State, :Thread
   :runState, :haltAll
   :priorityOf, :statusOf
-  :setPriority, :enable, :disable, :remove
+  :setPriority, :enable, :disable, :remove, :find
 }

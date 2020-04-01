@@ -62,7 +62,7 @@ getIntersecting = (grid) -> (x, y) ->
   --
   intersecting = {}
   for point, buf in pairs grid.references
-    px, py, pd = pointFor point
+    px, py, pd = fromPoint point
     -- since buffers are referenced as Buffer[1,1] = Grid[x,y]
     -- we know that references greater than our point will not
     -- show up.
@@ -75,5 +75,5 @@ getIntersecting = (grid) -> (x, y) ->
 {
   :Grid, :Reference
   :moveReference, :getReference
-  :pointFor, :getIntersecting
+  :fromPoint, :toPoint, :toPoint1, :getIntersecting
 }

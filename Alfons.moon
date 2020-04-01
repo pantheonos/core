@@ -19,9 +19,14 @@ tasks:
   run: => sh "cosrun run core --rom"
   -- clean lua files
   clean: =>
+    -- delete in /bin
     for file in wildcard "pantheon-core/bin/**"
       continue if file\match "moon"
       fs.delete file
+    -- delete in /tmp
+    for file in wildcard "pantheon-core/tmp/*"
+      fs.delete file
+    -- delete in /lib/**
     for file in wildcard "pantheon-core/lib/**.lua"
       continue if file\match "raisin"
       continue if file\match "bdf"

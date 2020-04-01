@@ -2,14 +2,12 @@
 -- Frame creation and management
 -- By daelvn
 import getIntersecting from require "libv.grid"
+import Pixel           from require "libv.pixel"
+import getScreenSize   from require "libv.platform"
+import ColorIndex      from require "libcolor"
 
-getScreenSize = ->
-  w, h = term.getSize!
-  switch PLATFORM!
-    when "VANILLA" then return w, h
-    else                return w*6, h*9
-
-FRAME_ID = 0
+BASE_PIXEL = Pixel (ColorIndex 0), (ColorIndex 15), " "
+FRAME_ID   = 0
 -- Create a new Frame
 -- A frame has a fixed size no larger than the current screen.
 -- Each frame also has an ID number for render caches.
@@ -33,7 +31,7 @@ capture = (frame) -> (grid) -> (x, y) ->
   gi = getIntersecting grid
   --
   region = {}
-  sw, sh = getScreenSize!
+  nw, nh = getScreenSize!
   -- Set the total region width and height
   -- If it overflows from the screen, just stop at the end.
   -- Otherwise, just do normal length.
@@ -63,13 +61,17 @@ capture = (frame) -> (grid) -> (x, y) ->
       --     }
       --   }
       ied            = gi rx, ry
-      region[px][py] = ied
+      if #ied == 0
+        region[px][py] = {{}}
+      else
+        region[px][py] = ied
       --
       return typeset {:x, :y, :w, :h, :region, :frame}, "VRegion"
 
 -- Internal util.
 -- Gets the largest key in a table.
 lkey = (t) ->
+  return nil unless "table" == typeof t
   largest = 0
   for n, v in npairs t
     if n > largest
@@ -78,7 +80,11 @@ lkey = (t) ->
 
 -- Takes a table in format {gx, gy, bx, by, buffer} and returns
 -- the pixel it points to.
-pixelFor = (int) -> buffer[int.bx][int.by]
+pixelFor = (int) ->
+  if int.buffer[int.bx] and int.buffer[int.bx][int.by]
+    return int.buffer[int.bx][int.by]
+  else
+    return nil
 
 -- Merges all layers in a region
 merge = (region) ->
@@ -95,11 +101,15 @@ merge = (region) ->
       --       [y]:
       --         Pixel
       --   }
-      screen[x][y] = pixelFor region.region[x][y][lkey reg[x][y]]
+      if reg[x] and reg[x][y]
+        screen[x][y] = pixelFor reg[x][y][(lkey reg[x][y]) or 1]
+      else
+        screen[x][y] = BASE_PIXEL
   --
-  return typeset, { :region, :screen }, "VScreen"
+  return typeset { :region, :screen }, "VScreen"
 
 {
+  :BASE_PIXEL
   :Frame
   :capture, :merge
 }

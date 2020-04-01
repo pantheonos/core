@@ -2,8 +2,12 @@
 -- Rendering VScreens using abstractions
 -- By daelvn
 import setPixel, drawPixels from require "libv.platform"
-import comparePixels        from require "libv.pixel"
+import comparePixels, Pixel from require "libv.pixel"
+import getScreenSize        from require "libv.platform"
+import ColorIndex           from require "libcolor"
 
+-- base pixel
+BASE_PIXEL = Pixel (ColorIndex 0), (ColorIndex 15), " "
 -- caches the last render of an object for diffing
 RENDER_CACHE = {}
 -- constant render bias
@@ -68,6 +72,12 @@ diffScreens = (scra, scrb) ->
 -- Renders a screen based on pixel difference and dirty rectangle
 render = (scr, bias=RENDER_BIAS) ->
   expect 1, scr, {"VScreen"}, "render"
+  -- FIXME
+  RENDER_CACHE[scr.id] = {}
+  for x=1, scr.region.w
+    RENDER_CACHE[scr.id][x] = {}
+    for y=1, scr.region.h
+      RENDER_CACHE[scr.id][x][y] = BASE_PIXEL
   -- Just render if screen is not cached
   unless RENDER_CACHE[scr.id]
     drawPixels scr.region.x, scr.region.y, scr.screen
@@ -90,6 +100,7 @@ render = (scr, bias=RENDER_BIAS) ->
   if (drarea-bias) < ipcount
     -- drawPixels, but only the dirty rectangle
     -- clone the screen, but only the rows we need
+    echo "using dirty rectangle method (#{drarea-bias} < #{ipcount})"
     newscr = {}
     for x=1, (x2-x1)
       newscr[x] = {}
@@ -99,5 +110,13 @@ render = (scr, bias=RENDER_BIAS) ->
     return true
   else
     -- set individual pixels
+    echo "setting individual pixels (#{drarea-bias} > #{ipcount})"
     for {x, y} in pairs iplist
       setPixel x, y, scr.screen[x][y]
+  --
+  RENDER_CACHE[scr.id] = scr
+
+{
+  :countDiffPixels, :diffScreens
+  :render
+}

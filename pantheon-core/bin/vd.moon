@@ -3,10 +3,11 @@
 -- By daelvn
 config = loadConfig "vd"
 libv   = {
-  grid:   require "libv.grid"
-  frame:  require "libv.frame"
-  buffer: require "libv.buffer"
-  render: require "libv.render"
+  grid:     require "libv.grid"
+  frame:    require "libv.frame"
+  buffer:   require "libv.buffer"
+  render:   require "libv.render"
+  platform: require "libv.platform"
 }
 echo   = kdprint "vd"
 
@@ -17,13 +18,13 @@ echo "starting server"
 -- Create main grid
 import Grid from libv.grid
 GRID = switch config.gridSize
-  when "screen" then Grid term.getSize!
+  when "screen" then Grid libv.platform.getScreenSize!
   else               Grid config.gridSize[1], config.gridSize[2]
 
 -- Create default frame
 import Frame from libv.frame
 FRAME = switch config.frameSize
-  when "screen" then Frame term.getSize!
+  when "screen" then Frame libv.platform.getScreenSize!
   else               Frame config.frameSize[1], config.frameSize[2]
 
 -- Internal function to add new buffers
@@ -37,8 +38,6 @@ newCapture = ((capture FRAME) GRID)
 -- TODO I need to find a way of using the Term API with V as the backend.
 -- Only methods not available are redraw methods, since rendering is not done by the individual
 -- windows but by the server instead.
-import PLATFORM from require "libv.platform"
-echo "running on graphics platform #{PLATFORM!}"
 
 -- Export the vrh table
 export vrh = { :GRID, :FRAME }
