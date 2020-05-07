@@ -34,7 +34,7 @@ wrap = (ws) -> (handle) -> ws.socket = handle
 open = (ws) -> (headers, binary=false) ->
   expect 1, ws,      {"Websocket", "WebsocketAsync"}, "open"
   expect 2, headers, {"table"},                       "open"
-  expect 3. binary,  {"boolean"},                     "open"
+  expect 3, binary,  {"boolean"},                     "open"
   --
   ws.binary = binary
   ok, err   = natws ws.url, headers, binary

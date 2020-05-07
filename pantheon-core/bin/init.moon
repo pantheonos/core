@@ -32,9 +32,11 @@ libconf = require "libconf"
 export loadConfig  = libconf.loadConfig
 export writeConfig = libconf.writeConfig
 
+--# installation #--
+
 --# kikito libs #--
 export inspect = require "inspect"
-export memoize = require "memoize"
+--export memoize = require "memoize"
 
 -- load pantheon configuration
 config = loadConfig "kernel"
@@ -62,12 +64,26 @@ else
   export kprint  = ->
   export kdprint = -> ->
 
+--# http #--
+libhttp = require "libhttp"
+
 -- set graphics mode
 switch config.graphics
   when "VANILLA" then term.setGraphicsMode 0
   when "LGFX"    then term.setGraphicsMode 1
   when "GFX"     then term.setGraphicsMode 2
 kprint "gfx mode: #{config.graphics or 'VANILLA'}"
+
+--# installation #--
+import install, uninstall from require "libc.install"
+install_list = {
+  "procd"
+  "vd"
+}
+for pkg in *install_list
+  ok, err = install pkg
+  unless ok
+    error "Could not install #{pkg}: #{err}"
 
 -- Wanted libs:
 --   libev (event system) (includes parallel)
@@ -84,15 +100,20 @@ import runProcd from dofile "/bin/procd"
 --# register daemons #--
 kprint "- registering daemons"
 callFile "/bin/pd" -- peripheral daemon
-callFile "/bin/vd" -- rendering daemon
+--callFile "/bin/vd" -- rendering daemon
 
 --# register example program #--
 kprint "- registering example program"
-callFile "/bin/example/fontrender"
+--callFile "/bin/example/fontrender"
 
 --# run main state #--
 kprint "- running procd"
 runProcd!
+
+-- delete /tmp/ contents
+--kprint "- deleting contents of /tmp/"
+--for file in *fs.list "/tmp/"
+--  fs.delete "/tmp/#{file}"
 
 --term.clear!
 kprint "kernel exectution completed"

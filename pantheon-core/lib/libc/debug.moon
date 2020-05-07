@@ -8,7 +8,7 @@
   export K_LOG   = ""
   export kdump   = -> writeTo "/tmp/init-0.log", K_LOG
   export klog    = (text) ->
-    K_LOG ..= text .. "\n"
+    K_LOG ..= (tostring text) .. "\n"
     (dbg.methods.print dbg) text
     kdump!
   export kprint  = klog

@@ -22,16 +22,28 @@ tasks:
     -- delete in /bin
     for file in wildcard "pantheon-core/bin/**"
       continue if file\match "moon"
+      continue if file\match "gitget"
       fs.delete file
     -- delete in /tmp
     for file in wildcard "pantheon-core/tmp/*"
       fs.delete file
     -- delete in /lib/**
     for file in wildcard "pantheon-core/lib/**.lua"
-      continue if file\match "raisin"
-      continue if file\match "bdf"
-      continue if file\match "json"
-      continue if file\match "serpent"
-      continue if file\match "inspect"
+      --continue if file\match "raisin"
+      continue if file\match "json.lua"
+      continue if file\match "serpent.lua"
+      continue if file\match "inspect.lua"
       fs.delete file
-
+  clean_libs: =>
+    for node in wildcard "pantheon-core/lib/*"
+      continue if node\match "json.lua"
+      continue if node\match "serpent.lua"
+      continue if node\match "inspect.lua"
+      continue if node\match "README.md"
+      continue if node\match "libc"
+      continue if node\match "libconf"
+      continue if node\match "libpkg"
+      continue if node\match "libperiph"
+      continue if node\match "libhttp"
+      continue if node\match "libgit"
+      fs.delete node

@@ -57,6 +57,25 @@ table.getn or= (t) ->
   for _, _ in pairs t do len += 1
   return len
 
+-- table.undupe
+table.undupe = (t) ->
+  -- https://stackoverflow.com/questions/20066835/lua-remove-duplicate-elements
+  hash, res = {}, {}
+  for elem in *t
+    unless hash[elem]
+      table.insert res, elem
+      hash[elem] = true
+  return res
+
+-- table.contains
+table.contains = (t, e) ->
+  for v in *t
+    return true if v == e
+  return false
+
+-- os.timer (os.startTimer)
+os.timer = os.startTimer
+
 -- gets the platform
 export PLATFORM = -> if term.getGraphicsMode
   switch term.getGraphicsMode!
