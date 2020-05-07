@@ -33,6 +33,7 @@ tasks:
       continue if file\match "json.lua"
       continue if file\match "serpent.lua"
       continue if file\match "inspect.lua"
+      continue if file\match "nap.lua"
       fs.delete file
   clean_libs: =>
     for node in wildcard "pantheon-core/lib/*"

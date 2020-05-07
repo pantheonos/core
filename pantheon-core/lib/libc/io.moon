@@ -21,6 +21,18 @@ writeTo = (filename, text) ->
     .write text
     .close!
 
+-- Let's implement a simple read function
+fread = (n=-1) ->
+  return if n == 0
+  final = ""
+  while true
+    evt, echar = os.pullEvent "char"
+    final ..= echar
+    n      -= 1
+    break if n == 0
+  final
+
+
 {
-  :tempFilename, :writeTo
+  :tempFilename, :writeTo, :fread
 }

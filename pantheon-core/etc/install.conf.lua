@@ -12,11 +12,7 @@ return {
     name = "libproc",
     target = "/lib/",
     include = {
-      "lua$",
-      "libproc"
-    },
-    exclude = {
-      "moon$"
+      "libproc/init.lua"
     },
     dependencies = {
       "raisin"
@@ -31,6 +27,9 @@ return {
     },
     dependencies = {
       "libproc"
-    }
+    },
+    postInstall = function()
+      return fs.move("/bin/procd.lua", "/bin/procd")
+    end
   }
 }

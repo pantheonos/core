@@ -78,7 +78,7 @@ kprint "gfx mode: #{config.graphics or 'VANILLA'}"
 import install, uninstall from require "libc.install"
 install_list = {
   "procd"
-  "vd"
+  --"vd"
 }
 for pkg in *install_list
   ok, err = install pkg
